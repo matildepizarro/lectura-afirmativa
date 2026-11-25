@@ -1,0 +1,116 @@
+{
+ "palabras": {
+  "t": "1 · Palabras",
+  "c": "big",
+  "d": "Palabras sueltas, ricas en vocales y sonidos suaves. Encuentra tu nota en una sola palabra.",
+  "i": [
+   {
+    "x": "mano"
+   },
+   {
+    "x": "luna"
+   },
+   {
+    "x": "mañana"
+   },
+   {
+    "x": "amable"
+   },
+   {
+    "x": "valiente"
+   },
+   {
+    "x": "nombre"
+   },
+   {
+    "x": "orgullo"
+   },
+   {
+    "x": "respiro"
+   },
+   {
+    "x": "sereno"
+   },
+   {
+    "x": "bienvenida"
+   },
+   {
+    "x": "espejo"
+   },
+   {
+    "x": "libertad"
+   }
+  ]
+ },
+ "frases": {
+  "t": "2 · Frases",
+  "c": "mid",
+  "d": "Frases cortas. Mantén la nota entre palabras, sin apuro.",
+  "i": [
+   {
+    "x": "Hoy me escucho con calma."
+   },
+   {
+    "x": "Mi voz es mía."
+   },
+   {
+    "x": "Respiro y hablo despacio."
+   },
+   {
+    "x": "Merezco ocupar mi espacio."
+   },
+   {
+    "x": "Mi nombre suena bien."
+   },
+   {
+    "x": "Cada día me siento más cómode."
+   }
+  ]
+ },
+ "emociones": {
+  "t": "3 · Intención",
+  "c": "mid",
+  "d": "Frases con emoción o intención. La melodía se mueve, pero tu rango se mantiene.",
+  "i": [
+   {
+    "g": "Con calidez",
+    "x": "Gracias por acompañarme hoy."
+   },
+   {
+    "g": "Con firmeza",
+    "x": "Mi nombre es el que elijo."
+   },
+   {
+    "g": "Con alegría",
+    "x": "¡Qué bueno verte de nuevo!"
+   },
+   {
+    "g": "Con ternura",
+    "x": "Voy a mi ritmo y está bien."
+   },
+   {
+    "g": "Con curiosidad",
+    "x": "¿Qué más puede hacer mi voz?"
+   },
+   {
+    "g": "Con seguridad",
+    "x": "Estoy aquí y tengo algo que decir."
+   }
+  ]
+ },
+ "textos": {
+  "t": "4 · Textos",
+  "c": "txt",
+  "d": "Lectura continua. Sostén tu rango y respira en cada pausa.",
+  "i": [
+   {
+    "g": "Presentación",
+    "x": "Hola, me llamo Alex y estoy conociendo mi voz. Hablo con calma, respiro entre frases y escucho cómo suena. Mi voz es parte de mi identidad y la cuido cada día."
+   },
+   {
+    "g": "Una mañana",
+    "x": "Esta mañana desperté con ganas de salir a caminar. El aire estaba fresco, las calles tranquilas y yo me sentía en paz. Hablar con quienes quiero me hace bien, y mi voz acompaña ese bienestar."
+   }
+  ]
+ }
+}

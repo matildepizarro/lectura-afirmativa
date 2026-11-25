@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6d5efc">
+<title>Voz Afirmativa · Acompañamiento vocal</title>
+<link rel="icon" href="icon.svg"><link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head>
+<body><div class="wrap">
+<header><div class="logo">🎙</div><div><h1>Voz Afirmativa</h1><p>Práctica guiada de voz y lectura · acompañamiento vocal afirmativo para personas trans y de género diverso</p></div></header>
+<div class="grid">
+<div class="col">
+ <div><div class="tabs" id="tabs"></div><p class="desc" id="desc"></p></div>
+ <div class="card">
+  <span class="tag hid" id="tag"></span>
+  <div id="reader"></div>
+  <div class="legend"><span><b class="ok">Subrayado liso</b> dentro de tu rango</span><span><b class="lo">Punteado</b> más grave</span><span><b class="hi">Rayado</b> más agudo</span></div>
+  <div class="chips" id="chips"></div>
+  <div class="row"><button class="btn pri" id="go">▶ Comenzar a leer</button><button class="btn" id="prev">◀</button><button class="btn" id="next" title="Avanzar palabra manualmente">▶ Palabra</button><button class="btn" id="reset">↺ Reiniciar</button><label class="chk" style="margin:0 0 0 6px"><input type="checkbox" id="auto"> Pasar al siguiente automáticamente</label></div>
+  <div class="msg" id="msg">Elige tu nota en el piano, permite el micrófono y comienza. Lee a tu ritmo, con pausas.</div>
+ </div>
+ <div class="card hid" id="sum"><h2>Resumen de tu práctica</h2><div id="sumb"></div><button class="btn" id="exp" style="margin-top:8px">⬇ Exportar sesión (CSV)</button><div class="sub" style="margin-top:10px">Contorno de tu tono (zona verde = tu rango, líneas = inicio de cada palabra)</div><canvas id="cv" width="640" height="150" style="width:100%;margin-top:6px"></canvas></div>
+ <div class="card care"><b>Cuida tu voz:</b> la nota es una guía, no una meta “correcta”: tú decides qué se siente tuyo. Haz pausas, toma agua, respira bajo y sin forzar. Si sientes tensión, ardor o dolor, detente y consúltalo con tu fonoaudiólogo/a. Esta herramienta acompaña el proceso, no reemplaza la terapia. El audio no se guarda. Con el motor “Navegador” el reconocimiento puede procesarse en servidores del proveedor; con “Whisper local” el audio no sale de tu equipo.</div>
+</div>
+<div class="col">
+ <div class="card"><h2>Tu tono en vivo</h2>
+  <div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="note" id="nn">—</div><div class="sub" id="nf">Sin voz detectada</div></div><div style="text-align:right"><div style="font-weight:700" id="ns">—</div><div class="sub">Nota guía: <span id="tn"></span></div></div></div>
+  <div class="meter"><div class="zone" id="zone"></div><div class="needle" id="needle"></div></div>
+  <div class="row sub" style="justify-content:space-between"><span>◀ más grave</span><span>más agudo ▶</span></div>
+  <div class="lvl"><i id="lv"></i><u id="gt"></u></div><div class="sub" style="margin-top:4px">Nivel de voz (la línea es tu umbral)</div>
+ </div>
+ <div class="card"><h2>Piano de referencia</h2>
+  <div class="piano" id="piano"></div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="play">🔔 Escuchar nota</button><button class="btn" id="hold">〰 Sostener guía</button></div>
+  <label>Rango permitido <span class="val" id="rv"></span></label><input type="range" id="range" min="1" max="6" step=".5" value="2">
+  <div class="sub">Semitonos arriba y abajo de la nota guía (zona verde).</div>
+ </div>
+ <div class="card"><h2>Micrófono</h2>
+  <button class="btn" id="perm" style="width:100%">Permitir micrófono</button>
+  <label for="dev">Dispositivo</label><select id="dev"><option>Predeterminado</option></select>
+  <label>Sensibilidad <span class="val" id="sv"></span></label><input type="range" id="sens" min="1" max="10" value="6">
+  <button class="btn" id="cal" style="width:100%;margin-top:12px">🎚 Calibrar (silencio + vocal “aaa”)</button>
+  <div class="msg" id="calm">La calibración mide el ruido de tu ambiente y tu tono cómodo.</div>
+  <button class="btn hid" id="useC" style="width:100%"></button>
+  <label>Ganancia de entrada <span class="val" id="gv">1×</span></label><input type="range" id="gain" min=".5" max="4" step=".1" value="1">
+  <label class="chk"><input type="checkbox" id="ns2"> Reducción de ruido del navegador</label>
+  <label for="lang">Idioma de reconocimiento</label><select id="lang"><option value="es-CL">Español (Chile)</option><option value="es-AR">Español (Argentina)</option><option value="es-MX">Español (México)</option><option value="es-ES">Español (España)</option></select>
+  <label for="eng">Motor de reconocimiento</label><select id="eng"><option value="web">Navegador (rápido, requiere internet)</option><option value="whisper">Whisper local (preciso; el audio no sale de tu equipo)</option></select><select id="wm" style="margin-top:6px"><option value="onnx-community/whisper-base">Whisper Base (~75 MB, más preciso)</option><option value="onnx-community/whisper-tiny">Whisper Tiny (~40 MB, más rápido)</option></select>
+  <label class="chk"><input type="checkbox" id="loc"> Reconocer en el dispositivo (más rápido y privado)</label>
+  <div class="sub" id="mnote">Chrome y Edge recientes usan el micrófono elegido también para reconocer palabras; si tu navegador no lo permite, usa el predeterminado.</div>
+ </div>
+ <div class="card"><h2>Prueba previa de palabras y sílabas</h2>
+  <div class="sub">Di cada palabra y comprueba si se detectan sus sílabas y si el navegador la entiende. El sistema ajusta su sensibilidad con tus pruebas.</div>
+  <div class="chips" id="tw"></div><div class="note" id="twd" style="font-size:1.8rem;margin:8px 0"></div>
+  <canvas id="tc" width="400" height="80" style="width:100%;border-radius:10px;background:rgba(127,120,200,.12)"></canvas>
+  <button class="btn pri" id="tgo" style="width:100%;margin-top:10px">🎤 Probar palabra (3 s)</button><div class="msg" id="tm"></div>
+ </div>
+</div></div></div>
+<script src="js/app.js"></script>
+<script type="module" src="js/whisper.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
+</body></html>
