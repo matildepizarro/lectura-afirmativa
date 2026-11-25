@@ -1,7 +1,7 @@
 
 const $=s=>document.querySelector(s),el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
-let LV={};
-const S={lv:'palabras',ix:0,tm:57,range:2,sens:6,floor:.004,run:false};
+let LV={},lastF=0,an2,b2,gU=.01,nf=0,vp=0;
+const S={lv:'palabras',ix:0,tm:57,range:2,sens:6,floor:.002,run:false};
 const NN=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];
 const nm=m=>NN[m%12]+(Math.floor(m/12)-1),fq=m=>440*2**((m-69)/12);
 let ctx,stream,an,buf,raf,words=[],cw=0,cs=0,rec,sess=0,hold,cal=null,hist=[],lastV=0,gate=.012,gN,flat=[],wst=[],g=0,armed=true,trace=[],wordT=[],t0=0,bad=0,test=null,tests=[],P={dip:.62,rise:1.3,gap:110,sil:350},det;
@@ -13,7 +13,7 @@ function syl(w){const l=w.toLowerCase(),isV=k=>(V.includes(l[k])||(l[k]=='y'&&k>
  if(nu.length<2)return[w];const cuts=[0];
  for(let j=0;j<nu.length-1;j++){const e=nu[j][1],c=l.slice(e,nu[j+1][0]),n=c.length;cuts.push(e+(n<=1?0:n==2?(INS.includes(c)?0:1):n==3?(INS.includes(c.slice(1))?1:2):2))}
  cuts.push(w.length);return cuts.slice(1).map((e,k)=>w.slice(cuts[k],e)).filter(Boolean)}
-const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/h/g,'').replace(/v/g,'b').replace(/z/g,'s').replace(/c([ei])/g,'s$1').replace(/qu/g,'k').replace(/c/g,'k').replace(/ll/g,'y').replace(/[^a-zñ0-9]/g,'');
+const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/h/g,'').replace(/v/g,'b').replace(/z/g,'s').replace(/c([ei])/g,'s$1').replace(/qu/g,'k').replace(/c/g,'k').replace(/ll/g,'y').replace(/rr/g,'r').replace(/g([ei])/g,'j$1').replace(/w/g,'u').replace(/[^a-zñ0-9]/g,'');
 const stress=(w,sy)=>{if(sy.length<2)return 0;const i=sy.findIndex(s=>/[áéíóú]/i.test(s));if(i>=0)return i;return /[aeiouns]$/i.test(w)?sy.length-2:sy.length-1};
 class Det{constructor(p){this.p=p;this.reset()}reset(){this.env=0;this.pk=0;this.dip=false;this.vl=0;this.last=-1e9;this.lv=-1e9;this.arm=true}
  push(t,rms,gate){const p=this.p;this.env=this.env*.6+rms*.4;const e=this.env,v=rms>gate;if(v)this.lv=t;if(e>this.pk)this.pk=e;else this.pk*=.99;
@@ -23,7 +23,7 @@ class Det{constructor(p){this.p=p;this.reset()}reset(){this.env=0;this.pk=0;this
   if(this.arm&&v&&e>gate){this.arm=false;this.last=t;return true}return false}}
 det=new Det(P);
 function lev(a,b){const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]}
-const sim=(a,b)=>!b||a==b||lev(a,b)<=Math.floor(Math.max(a.length,b.length)/4);
+const sim=(a,b)=>!b||a==b||lev(a,b)<=Math.floor(Math.max(a.length,b.length)/4)||(Math.min(a.length,b.length)>=3&&(a.startsWith(b)||b.startsWith(a)));
 // ---- UI nivel/lectura
 function tabs(){const t=$('#tabs');t.innerHTML='';for(const k in LV){const b=el('button','tab'+(k==S.lv?' on':''),LV[k].t);b.onclick=()=>{stop();S.lv=k;S.ix=0;tabs();items()};t.append(b)}$('#desc').textContent=LV[S.lv].d}
 function items(){const c=$('#chips');c.innerHTML='';LV[S.lv].i.forEach((it,n)=>{const b=el('button','chip'+(n==S.ix?' on':''),it.x);b.onclick=()=>{stop();S.ix=n;items()};c.append(b)});load()}
@@ -36,7 +36,7 @@ function setCur(w,s){document.querySelectorAll('.s.act').forEach(e=>e.classList.
 const med=a=>{const b=[...a].sort((x,y)=>x-y);return b[b.length>>1]};
 const cls=(a)=>{if(a.length<3)return'';const st=12*Math.log2(med(a)/fq(S.tm));return Math.abs(st)<=S.range?'ok':st<0?'lo':'hi'};
 function paint(w,s,fin){const e=words[w].e[s];e.classList.remove('ok','lo','hi');const c=cls(words[w].d[s]);if(c)e.classList.add(c);if(fin)e.classList.add('done')}
-function goG(n){n=Math.max(g,Math.min(n,flat.length));for(let i=g;i<n;i++){const[w,s]=flat[i];paint(w,s,1);if(wordT[w]==null)wordT[w]=performance.now()-t0}g=n;if(n>=flat.length){setCur(words.length,0);finish()}else{const[w,s]=flat[n];if(wordT[w]==null)wordT[w]=performance.now()-t0;setCur(w,s)}}
+function goG(n){n=Math.max(g,Math.min(n,flat.length));const k=n-g;if(k>1&&g<flat.length){const[w0,s0]=flat[g],pool=[...words[w0].d[s0]];if(pool.length>=k){const z=Math.floor(pool.length/k);for(let i=0;i<k;i++){const[w,s]=flat[g+i];words[w].d[s]=pool.slice(i*z,i==k-1?undefined:(i+1)*z)}}}for(let i=g;i<n;i++){const[w,s]=flat[i];paint(w,s,1);if(wordT[w]==null)wordT[w]=performance.now()-t0}g=n;if(n>=flat.length){setCur(words.length,0);finish()}else{const[w,s]=flat[n];if(wordT[w]==null)wordT[w]=performance.now()-t0;setCur(w,s)}}
 function advance(to){goG(to<words.length?wst[to]:flat.length)}
 function jump(w){if(rec&&S.run){try{rec.abort()}catch{}}sess=w;words.forEach((x,i)=>x.e.forEach(e=>{if(i>=w)e.classList.remove('done','ok','lo','hi')}));g=wst[w];armed=true;det.reset();setCur(w,0)}
 // ---- audio
@@ -45,17 +45,18 @@ async function openMic(){stop(1);const id=$('#dev').value,au={echoCancellation:f
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg('Este navegador no permite usar el micrófono aquí. Abre la página con https:// en Chrome, Edge, Firefox o Safari.');return false}
  const get=a=>navigator.mediaDevices.getUserMedia({audio:a});
  try{try{stream=await get(id&&id!='def'?{...au,deviceId:{exact:id}}:au)}catch(e){if(e.name=='OverconstrainedError'||e.name=='NotFoundError')stream=await get(au);else throw e}}catch(e){console.warn(e);msg(micErr(e));return false}
- AC();const src=ctx.createMediaStreamSource(stream);gN=ctx.createGain();gN.gain.value=+$('#gain').value;an=ctx.createAnalyser();an.fftSize=2048;src.connect(gN);gN.connect(an);buf=new Float32Array(2048);cancelAnimationFrame(raf);loop();await devs();return true}
+ AC();const src=ctx.createMediaStreamSource(stream);gN=ctx.createGain();gN.gain.value=+$('#gain').value;an=ctx.createAnalyser();an.fftSize=2048;src.connect(gN);gN.connect(an);buf=new Float32Array(2048);const hp=ctx.createBiquadFilter(),lp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=150;lp.type='lowpass';lp.frequency.value=4000;an2=ctx.createAnalyser();an2.fftSize=2048;b2=new Float32Array(2048);gN.connect(hp);hp.connect(lp);lp.connect(an2);cancelAnimationFrame(raf);loop();await devs();return true}
 async function devs(){const cur=$('#dev').value,l=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind=='audioinput'),s=$('#dev');s.innerHTML='';{const o0=el('option','','Predeterminado');o0.value='';s.append(o0)}l.forEach((d,i)=>{const o=el('option','',d.label||'Micrófono '+(i+1));o.value=d.deviceId;s.append(o)});if(cur&&l.some(d=>d.deviceId==cur))s.value=cur}
 function detect(b,sr){const n=b.length,mx=Math.min(Math.floor(sr/75),n>>1),mn=Math.floor(sr/450),d=new Float32Array(mx+2);
  for(let t=1;t<=mx;t++){let s=0;for(let i=0;i<n-mx;i++){const x=b[i]-b[i+t];s+=x*x}d[t]=s}
  let run=0;for(let t=1;t<=mx;t++){run+=d[t];d[t]=d[t]*t/(run||1)}
  for(let t=mn;t<mx;t++)if(d[t]<.15){while(t+1<mx&&d[t+1]<d[t])t++;const a=d[t-1],c=d[t+1],sh=(a-c)/(2*(a-2*d[t]+c))||0;return sr/(t+sh)}return-1}
-function setGate(){gate=Math.max(.003,S.floor*(1+(11-S.sens)*.5));$('#gt').style.left=Math.min(1,gate/.15)*100+'%'}
-function loop(){raf=requestAnimationFrame(loop);an.getFloatTimeDomainData(buf);let s=0;for(const v of buf)s+=v*v;const rms=Math.sqrt(s/buf.length),now=performance.now();
+function setGate(){gate=gU=Math.max(.0015,S.floor*(1+(11-S.sens)*.5));$('#gt').style.left=Math.min(1,gate/.15)*100+'%'}
+function loop(){raf=requestAnimationFrame(loop);an.getFloatTimeDomainData(buf);an2.getFloatTimeDomainData(b2);let s=0;for(const v of b2)s+=v*v;const rms=Math.sqrt(s/b2.length),now=performance.now();
  $('#lv').style.width=Math.min(1,rms/.15)*100+'%';let f=-1;
- if(cal&&cal.ph=='n')cal.n.push(rms);if(test)test.tr.push([now-test.t,rms]);
+ if(cal&&cal.ph=='n')cal.n.push(rms);
  if(rms>(cal&&cal.ph=='v'?S.floor*2:gate)){f=detect(buf,ctx.sampleRate);lastV=now;if(f>0&&hist.length>2&&Math.abs(12*Math.log2(f/med(hist)))>6){if(++bad<4)f=-1;else{bad=0;hist=[]}}else bad=0}
+ const vf=f>0;if(vf)lastF=now;const feat=(vf||now-lastF<90)?rms:rms*.3;if(test)test.tr.push([now-test.t,feat]);nf=nf?(rms<nf?nf*.9+rms*.1:(vf?nf:nf*.995+rms*.005)):rms;if(vf)vp=Math.max(rms,vp*.998);if(!cal)gate=Math.max(nf*2.2,Math.min(gU,vp>0?vp*.4:nf*6));
  if(f>0){hist.push(f);if(hist.length>5)hist.shift();const m=med(hist),st=12*Math.log2(m/fq(S.tm)),mi=Math.round(69+12*Math.log2(m/440));
   $('#nn').textContent=nm(mi);$('#nf').textContent=m.toFixed(0)+' Hz · '+(st>=0?'+':'')+st.toFixed(1)+' st';
   const ok=Math.abs(st)<=S.range;$('#ns').textContent=ok?'En tu rango':st<0?'Más grave':'Más agudo';$('#ns').style.color=ok?'var(--ok)':st<0?'var(--lo)':'var(--hi)';
@@ -64,10 +65,10 @@ function loop(){raf=requestAnimationFrame(loop);an.getFloatTimeDomainData(buf);l
   if(S.run&&cw<words.length){words[cw].d[cs].push(m);paint(cw,cs);trace.push([now-t0,st])}}
  else if(now-lastV>350){hist=[];$('#needle').style.opacity=.25;$('#nn').textContent='—';$('#nf').textContent='Sin voz detectada';$('#ns').textContent='—';$('#ns').style.color=''}
  // sílabas por energía
- if(S.run&&cw<words.length){if(det.push(now,rms,gate)){if(armed)armed=false;else if(g<flat.length-1)goG(g+1)}
+ if(S.run&&cw<words.length){if(det.push(now,feat,gate)){if(armed)armed=false;else if(g<flat.length-1)goG(g+1)}
   
   
-  const lw=words[words.length-1];if(g>=flat.length-1&&lw.d[lw.sy.length-1].length>4&&now-lastV>1200)goG(flat.length)}
+  const lw=words[words.length-1];if((g>=flat.length-1&&lw.d[lw.sy.length-1].length>2&&now-lastV>550)||(words.length==1&&now-lastV>700&&words[0].d.reduce((a,x)=>a+x.length,0)>5))goG(flat.length)}
  if(cal)calTick(now)}
 // ---- calibración
 function calibrate(){if(!stream){msg('Primero permite el micrófono.');return}cal={ph:'n',t:performance.now(),n:[],f:[]};$('#useC').classList.add('hid');$('#calm').textContent='Silencio 2 segundos…'}
@@ -118,7 +119,9 @@ async function tryWord(){if(!stream&&!(await openMic()))return;if(S.run)stop();c
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let r2;if(SR){r2=new SR();r2.lang=$('#lang').value;r2.interimResults=true;r2.onresult=e=>{heard=[...e.results].map(x=>x[0].transcript).join(' ')};try{if(S.local)r2.processLocally=true;try{r2.start(stream.getAudioTracks()[0])}catch{r2.start()}}catch{}}
  $('#tgo').disabled=true;$('#tm').textContent='Escuchando… di “'+w+'” con calma';await new Promise(r=>setTimeout(r,3000));try{r2&&r2.stop()}catch{}
  const tr=test.tr;test=null;$('#tgo').disabled=false;
- if(Math.max(0,...tr.map(a=>a[1]))<gate){$('#tm').textContent='No detecté voz: acerca el micrófono o sube la ganancia y vuelve a probar.';return}
+ {const rs=tr.map(a=>a[1]),pk=Math.max(0,...rs),nz=[...rs].sort((a,b)=>a-b)[Math.floor(rs.length*.2)]||0,mul=1+(11-S.sens)*.5;
+ if(pk<Math.max(.004,nz*2.5)){$('#tm').textContent='No detecté voz: acerca el micrófono o sube la ganancia y vuelve a probar.';return}
+ if(pk<gate*3){S.floor=Math.max(.001,Math.max(pk/3,nz*1.8)/mul);setGate()}}
  tests.push({tr,n});let best=P,bs=1e9;for(const dip of[.45,.55,.62,.7,.8])for(const rise of[1.15,1.3,1.5,1.8]){const p={...P,dip,rise},s=tests.reduce((a,t)=>a+Math.abs(nucs(t.tr,p).length-t.n),0)+Math.abs(dip-.62)*.1+Math.abs(rise-1.3)*.05;if(s<bs){bs=s;best=p}}
  P=best;det=new Det(P);const nuc=nucs(tr,P);drawTest(tr,nuc);const hn=norm(heard),sp=hn&&sim(hn,norm(w));
  $('#tm').textContent=(nuc.length==n?'✓ Sílabas: detecté '+n+' de '+n+'. ':'Detecté '+nuc.length+' de '+n+' sílabas; ajusté la sensibilidad, repite para afinar. ')+(SR?(heard?'Reconocimiento: “'+heard.trim()+'” '+(sp?'✓':'✗'):'Reconocimiento: no escuché nada.'):'')}
@@ -148,8 +151,8 @@ async function startWhisper(){msg('Cargando Whisper (la primera vez descarga el 
  if(!S.run)return;msg('Escuchando con Whisper local… lee a tu ritmo.');
  Whisper.start(stream,'spanish',hw=>applyHeard(hw,0,Math.max(0,flat[Math.min(g,flat.length-1)][0]-2)),ctx)}
 // ---- ajustes guardados y exportación
-function saveSettings(){try{localStorage.setItem('va',JSON.stringify({tm:S.tm,range:S.range,sens:S.sens,floor:S.floor,P,lang:$('#lang').value,eng:$('#eng').value,wm:$('#wm').value,gain:$('#gain').value}))}catch{}}
-function loadSettings(){try{const j=JSON.parse(localStorage.getItem('va')||'{}');S.tm=j.tm??S.tm;S.range=j.range??S.range;S.sens=j.sens??S.sens;S.floor=j.floor??S.floor;if(j.P){P={...P,...j.P};det=new Det(P)}
+function saveSettings(){try{localStorage.setItem('va2',JSON.stringify({tm:S.tm,range:S.range,sens:S.sens,floor:S.floor,P,lang:$('#lang').value,eng:$('#eng').value,wm:$('#wm').value,gain:$('#gain').value}))}catch{}}
+function loadSettings(){try{const j=JSON.parse(localStorage.getItem('va2')||'{}');S.tm=j.tm??S.tm;S.range=j.range??S.range;S.sens=j.sens??S.sens;S.floor=j.floor??S.floor;if(j.P){P={...P,...j.P};det=new Det(P)}
  $('#range').value=S.range;$('#sens').value=S.sens;for(const k of['lang','eng','wm','gain'])if(j[k]!=null)$('#'+k).value=j[k]}catch{}
  setInterval(saveSettings,3000)}
 $('#exp').onclick=()=>{const rows=[['palabra','silaba','tonica','hz_mediana','semitonos_vs_guia','estado']];

@@ -57,3 +57,4 @@ input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
 .care{font-size:.8rem;color:var(--mut);line-height:1.6;border-radius:22px;background:color-mix(in srgb,var(--card) 70%,transparent);box-shadow:none}
 .hid{display:none}.chk{display:flex;gap:9px;align-items:center;font-weight:500;font-size:.84rem;margin:12px 0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(min-width:901px){.grid>.col:first-child{position:sticky;top:20px;align-self:start}}
