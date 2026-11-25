@@ -13,7 +13,7 @@ function syl(w){const l=w.toLowerCase(),isV=k=>(V.includes(l[k])||(l[k]=='y'&&k>
  if(nu.length<2)return[w];const cuts=[0];
  for(let j=0;j<nu.length-1;j++){const e=nu[j][1],c=l.slice(e,nu[j+1][0]),n=c.length;cuts.push(e+(n<=1?0:n==2?(INS.includes(c)?0:1):n==3?(INS.includes(c.slice(1))?1:2):2))}
  cuts.push(w.length);return cuts.slice(1).map((e,k)=>w.slice(cuts[k],e)).filter(Boolean)}
-const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/h/g,'').replace(/v/g,'b').replace(/z/g,'s').replace(/c([ei])/g,'s$1').replace(/qu/g,'k').replace(/c/g,'k').replace(/ll/g,'y').replace(/rr/g,'r').replace(/g([ei])/g,'j$1').replace(/w/g,'u').replace(/[^a-zñ0-9]/g,'');
+const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/h/g,'').replace(/v/g,'b').replace(/z/g,'s').replace(/c([ei])/g,'s$1').replace(/qu/g,'k').replace(/c/g,'k').replace(/ll/g,'y').replace(/rr/g,'r').replace(/g([ei])/g,'j$1').replace(/w/g,'u').replace(/[^a-zñ0-9]/g,'').replace(/([aeiou])d([aeiou])/g,'$1$2').replace(/([aeiou])d$/,'$1').replace(/s$/,'');
 const stress=(w,sy)=>{if(sy.length<2)return 0;const i=sy.findIndex(s=>/[áéíóú]/i.test(s));if(i>=0)return i;return /[aeiouns]$/i.test(w)?sy.length-2:sy.length-1};
 class Det{constructor(p){this.p=p;this.reset()}reset(){this.env=0;this.pk=0;this.dip=false;this.vl=0;this.last=-1e9;this.lv=-1e9;this.arm=true}
  push(t,rms,gate){const p=this.p;this.env=this.env*.6+rms*.4;const e=this.env,v=rms>gate;if(v)this.lv=t;if(e>this.pk)this.pk=e;else this.pk*=.99;
@@ -23,11 +23,11 @@ class Det{constructor(p){this.p=p;this.reset()}reset(){this.env=0;this.pk=0;this
   if(this.arm&&v&&e>gate){this.arm=false;this.last=t;return true}return false}}
 det=new Det(P);
 function lev(a,b){const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]}
-const sim=(a,b)=>!b||a==b||lev(a,b)<=Math.floor(Math.max(a.length,b.length)/4)||(Math.min(a.length,b.length)>=3&&(a.startsWith(b)||b.startsWith(a)));
+const sim=(a,b)=>!b||a==b||lev(a,b)<=Math.floor(Math.max(a.length,b.length)/3)||(Math.min(a.length,b.length)>=3&&(a.startsWith(b)||b.startsWith(a)));
 // ---- UI nivel/lectura
 function tabs(){const t=$('#tabs');t.innerHTML='';for(const k in LV){const b=el('button','tab'+(k==S.lv?' on':''),LV[k].t);b.onclick=()=>{stop();S.lv=k;S.ix=0;tabs();items()};t.append(b)}$('#desc').textContent=LV[S.lv].d}
 function items(){const c=$('#chips');c.innerHTML='';LV[S.lv].i.forEach((it,n)=>{const b=el('button','chip'+(n==S.ix?' on':''),it.x);b.onclick=()=>{stop();S.ix=n;items()};c.append(b)});load()}
-function load(){const it=LV[S.lv].i[S.ix],R=$('#reader');const nw=it.x.trim().split(/\s+/).length;R.className=S.lv=='mios'?(nw<=1?'big':nw<=8?'mid':'txt'):LV[S.lv].c;R.innerHTML='';$('#sum').classList.add('hid');
+function load(){const it=LV[S.lv].i[S.ix],R=$('#reader');const nw=it.x.trim().split(/\s+/).length;R.className=S.lv=='mios'?(nw<=1?'big':nw<=8?'mid':'txt'):LV[S.lv].c;R.innerHTML='';$('#sum').classList.add('hid');$('#hd').textContent='';
  const tg=$('#tag');tg.classList.toggle('hid',!it.g);tg.textContent=it.g||'';
  words=it.x.split(/\s+/).map(w=>{const m=w.match(/^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N}]*)$/u),c0=m[2]||w,sy=c0.includes('-')?c0.split('-').filter(Boolean):syl(c0),core=c0.includes('-')?sy.join(''):c0;return{pre:m[1],post:m[3],sy,st:stress(core,sy),n:norm(core),d:sy.map(()=>[]),e:[]}});
  flat=[];words.forEach((w,wi)=>{wst[wi]=flat.length;const ws=el('span','w');if(w.pre)ws.append(w.pre);w.sy.forEach((s,si)=>{const e=el('span','s'+(w.sy.length>1&&si==w.st?' st':''),s);w.e.push(e);flat.push([wi,si]);ws.append(e)});if(w.post)ws.append(w.post);ws.onclick=()=>jump(wi);R.append(ws,' ')});
@@ -65,10 +65,10 @@ function loop(){raf=requestAnimationFrame(loop);an.getFloatTimeDomainData(buf);a
   if(S.run&&cw<words.length){words[cw].d[cs].push(m);paint(cw,cs);trace.push([now-t0,st])}}
  else if(now-lastV>350){hist=[];$('#needle').style.opacity=.25;$('#nn').textContent='—';$('#nf').textContent='Sin voz detectada';$('#ns').textContent='—';$('#ns').style.color=''}
  // sílabas por energía
- if(S.run&&cw<words.length){if(det.push(now,feat,gate)){if(armed)armed=false;else if(g<flat.length-1)goG(g+1)}
+ if(S.run&&cw<words.length){if(det.push(now,feat,gate)){if(armed)armed=false;else if(g<flat.length-1&&(!S.strict||flat[g+1][0]==flat[g][0]))goG(g+1)}
   
   
-  const lw=words[words.length-1];if((g>=flat.length-1&&lw.d[lw.sy.length-1].length>2&&now-lastV>550)||(words.length==1&&now-lastV>700&&words[0].d.reduce((a,x)=>a+x.length,0)>5))goG(flat.length)}
+  const lw=words[words.length-1];if(!S.strict&&((g>=flat.length-1&&lw.d[lw.sy.length-1].length>2&&now-lastV>550)||(words.length==1&&now-lastV>700&&words[0].d.reduce((a,x)=>a+x.length,0)>5)))goG(flat.length)}
  if(cal)calTick(now)}
 // ---- calibración
 function calibrate(){if(!stream){msg('Primero permite el micrófono.');return}cal={ph:'n',t:performance.now(),n:[],f:[]};$('#useC').classList.add('hid');$('#calm').textContent='Silencio 2 segundos…'}
@@ -107,8 +107,8 @@ function drawCv(){const c=$('#cv'),x=c.getContext('2d'),W=c.width,H=c.height;x.c
  x.lineWidth=2.5;x.strokeStyle='#6d5efc';x.beginPath();let pt=-1e9;trace.forEach(([t,s])=>{if(t-pt>200)x.moveTo(X(t),Y(s));else x.lineTo(X(t),Y(s));pt=t});x.stroke()}
 async function localOK(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR||!SR.available)return false;try{const o={langs:[$('#lang').value],processLocally:true},a=await SR.available(o);if(a==='downloadable'&&SR.install)await SR.install(o);return a!=='unavailable'}catch{return false}}
 function startSR(){if($('#eng').value=='whisper')return startWhisper();const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('Este navegador no tiene reconocimiento de voz. Usa Chrome o Edge; el seguimiento por audio sigue activo.');return}
- rec=new SR();rec.lang=$('#lang').value;rec.continuous=true;rec.interimResults=true;sess=cw;if(S.local){try{rec.processLocally=true}catch{}}
- rec.onresult=e=>{const hw=[];let fin=0;for(let i=0;i<e.results.length;i++){const r=e.results[i];hw.push(...r[0].transcript.trim().split(/\s+/));if(r.isFinal)fin=hw.length}
+ rec=new SR();rec.lang=$('#lang').value;rec.continuous=true;rec.interimResults=true;sess=cw;try{if(window.SpeechRecognitionPhrase)rec.phrases=words.slice(0,60).map(w=>new SpeechRecognitionPhrase(w.sy.join(''),6))}catch{}if(S.local){try{rec.processLocally=true}catch{}}
+ rec.onresult=e=>{const hw=[];let fin=0;for(let i=0;i<e.results.length;i++){const r=e.results[i];hw.push(...r[0].transcript.trim().split(/\s+/));if(r.isFinal)fin=hw.length}$('#hd').textContent='Escuché: '+hw.join(' ');
   let p=sess,pf=sess;hw.forEach((h,j)=>{const hn=norm(h);if(!hn)return;for(let k=p;k<Math.min(p+3,words.length);k++)if(sim(hn,words[k].n)){p=k+1;if(j<fin)pf=p;break}});
   if(!S.run||!flat.length)return;const cur=flat[Math.min(g,flat.length-1)][0];
   if(pf>cur){armed=false;goG(pf<words.length?wst[pf]:flat.length)}else if(p-1>cur){armed=false;goG(wst[p-1])}
@@ -121,11 +121,11 @@ function twUI(){const c=$('#tw');c.innerHTML='';TW.forEach((w,i)=>{const b=el('b
 const nucs=(tr,p)=>{const d=new Det(p),o=[];tr.forEach(([t,r])=>{if(d.push(t,r,gate))o.push(t)});return o};
 function drawTest(tr,nuc){const c=$('#tc'),x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);if(!tr.length)return;const T=tr[tr.length-1][0],mx=Math.max(.05,...tr.map(a=>a[1]));x.strokeStyle='#6d5efc';x.lineWidth=2;x.beginPath();tr.forEach(([t,r],i)=>{const X=t/T*W,Y=H-4-r/mx*(H-8);i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();x.fillStyle='#ff6fb5';nuc.forEach(t=>{x.beginPath();x.arc(t/T*W,10,5,0,7);x.fill()});x.strokeStyle='#f2683c';const gy=H-4-gate/mx*(H-8);x.beginPath();x.moveTo(0,gy);x.lineTo(W,gy);x.stroke()}
 async function tryWord(){if(!stream&&!(await openMic()))return;if(S.run)stop();const w=TW[ti],n=syl(w).length;test={t:performance.now(),tr:[]};let heard='',rerr='',WH=$('#eng').value=='whisper';
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let r2;if(SR&&!WH){r2=new SR();r2.lang=$('#lang').value;r2.interimResults=true;r2.maxAlternatives=3;r2.onerror=e=>{rerr=e.error;if(S.local&&(e.error=='language-not-supported'||e.error=='service-not-allowed')){S.local=false;$('#loc').checked=false}};r2.onresult=e=>{heard=[...e.results].map(x=>x[0].transcript).join(' ')};try{if(S.local)r2.processLocally=true;try{r2.start(stream.getAudioTracks()[0])}catch{r2.start()}}catch{}}
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let r2;if(SR&&!WH){r2=new SR();r2.lang=$('#lang').value;r2.interimResults=true;r2.maxAlternatives=3;try{if(window.SpeechRecognitionPhrase)r2.phrases=[new SpeechRecognitionPhrase(w,8)]}catch{}r2.onerror=e=>{rerr=e.error;if(S.local&&(e.error=='language-not-supported'||e.error=='service-not-allowed')){S.local=false;$('#loc').checked=false}};r2.onresult=e=>{heard=[...e.results].map(x=>x[0].transcript).join(' ')};try{if(S.local)r2.processLocally=true;try{r2.start(stream.getAudioTracks()[0])}catch{r2.start()}}catch{}}
  $('#tgo').disabled=true;
  if(WH){try{$('#tm').textContent='Cargando Whisper…';await Whisper.load($('#wm').value,q=>$('#tm').textContent='Cargando modelo… '+q+'%');await Whisper.start(stream,'spanish',x=>{heard=x.join(' ')},ctx)}catch(e){console.warn(e);rerr='whisper'}}
  $('#tm').textContent='Escuchando… di “'+w+'” con calma';test.t=performance.now();test.tr=[];await new Promise(r=>setTimeout(r,3000));try{r2&&r2.stop()}catch{}
- if(WH&&!rerr){$('#tm').textContent='Reconociendo…';for(let i=0;i<40&&!heard;i++)await new Promise(r=>setTimeout(r,250));Whisper.stop()}
+ if(WH&&!rerr){$('#tm').textContent='Reconociendo…';const fr=await Whisper.flush();if(fr)heard=fr.join(' ');Whisper.stop()}
  const tr=test.tr;test=null;$('#tgo').disabled=false;
  {const rs=tr.map(a=>a[1]),pk=Math.max(0,...rs),nz=[...rs].sort((a,b)=>a-b)[Math.floor(rs.length*.2)]||0,mul=1+(11-S.sens)*.5;
  if(pk<Math.max(.004,nz*2.5)){$('#tm').textContent='No detecté voz: acerca el micrófono o sube la ganancia y vuelve a probar.';return}
@@ -157,11 +157,11 @@ function applyHeard(hw,fin,s0){let p=s0,pf=s0;hw.forEach((h,j)=>{const hn=norm(h
 async function startWhisper(){msg('Cargando Whisper (la primera vez descarga el modelo; luego queda en caché)…');
  try{await Whisper.load($('#wm').value,p=>msg('Cargando modelo… '+p+'%'))}catch(e){console.warn(e);msg('No pude cargar Whisper ('+e.message+'). Uso el reconocimiento del navegador.');$('#eng').value='web';return startSR()}
  if(!S.run)return;msg('Escuchando con Whisper local… lee a tu ritmo.');
- Whisper.start(stream,'spanish',hw=>applyHeard(hw,0,Math.max(0,flat[Math.min(g,flat.length-1)][0]-2)),ctx)}
+ Whisper.start(stream,'spanish',hw=>{$('#hd').textContent='Escuché: '+hw.join(' ');applyHeard(hw,hw.length,Math.max(0,flat[Math.min(g,flat.length-1)][0]-2))},ctx)}
 // ---- ajustes guardados y exportación
-function saveSettings(){try{localStorage.setItem('va2',JSON.stringify({tm:S.tm,range:S.range,sens:S.sens,floor:S.floor,P,lang:$('#lang').value,eng:$('#eng').value,wm:$('#wm').value,gain:$('#gain').value,band:$('#band').value}))}catch{}}
+function saveSettings(){try{localStorage.setItem('va2',JSON.stringify({tm:S.tm,range:S.range,sens:S.sens,floor:S.floor,P,lang:$('#lang').value,eng:$('#eng').value,wm:$('#wm').value,gain:$('#gain').value,band:$('#band').value,strict:!!S.strict}))}catch{}}
 function loadSettings(){try{const j=JSON.parse(localStorage.getItem('va2')||'{}');S.tm=j.tm??S.tm;S.range=j.range??S.range;S.sens=j.sens??S.sens;S.floor=j.floor??S.floor;if(j.P){P={...P,...j.P};det=new Det(P)}
- $('#range').value=S.range;$('#sens').value=S.sens;for(const k of['lang','eng','wm','gain','band'])if(j[k]!=null)$('#'+k).value=j[k]}catch{}
+ $('#range').value=S.range;$('#sens').value=S.sens;S.strict=!!j.strict;$('#strict').checked=S.strict;for(const k of['lang','eng','wm','gain','band'])if(j[k]!=null)$('#'+k).value=j[k]}catch{}
  setInterval(saveSettings,3000)}
 $('#exp').onclick=()=>{const rows=[['palabra','silaba','tonica','hz_mediana','semitonos_vs_guia','estado']];
  words.forEach(w=>w.sy.forEach((s,i)=>{const d=w.d[i],c=cls(d),m=d.length>2?med(d):0;rows.push([w.sy.join(''),s,i==w.st?'si':'',m?m.toFixed(1):'',m?(12*Math.log2(m/fq(S.tm))).toFixed(2):'',c=='ok'?'en rango':c=='lo'?'mas grave':c=='hi'?'mas agudo':'sin datos'])}));
@@ -176,3 +176,4 @@ function mine(save){const L=$('#mine').value.split('\n').map(x=>x.trim()).filter
  stop();if(L.length)LV.mios={t:'5 · Mis textos',c:'mid',d:'Tus propias palabras, frases y textos. Para definir tú las sílabas, sepáralas con guiones (ma-ña-na).',i:L.map(x=>({x}))};else delete LV.mios;
  if(save&&L.length){S.lv='mios';S.ix=0}if(!LV[S.lv])S.lv=Object.keys(LV)[0];if(!LV[S.lv])return;S.ix=Math.min(S.ix,LV[S.lv].i.length-1);tabs();items()}
 $('#mineSave').onclick=()=>mine(1);$('#mineClear').onclick=()=>{$('#mine').value='';mine(1)};
+$('#strict').onchange=e=>{S.strict=e.target.checked};
