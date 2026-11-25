@@ -40,9 +40,13 @@ function goG(n){n=Math.max(g,Math.min(n,flat.length));for(let i=g;i<n;i++){const
 function advance(to){goG(to<words.length?wst[to]:flat.length)}
 function jump(w){if(rec&&S.run){try{rec.abort()}catch{}}sess=w;words.forEach((x,i)=>x.e.forEach(e=>{if(i>=w)e.classList.remove('done','ok','lo','hi')}));g=wst[w];armed=true;det.reset();setCur(w,0)}
 // ---- audio
-async function openMic(){stop(1);const id=$('#dev').value;try{stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:id&&id!='def'?{exact:id}:undefined,echoCancellation:false,noiseSuppression:$('#ns2').checked,autoGainControl:false}})}catch(e){msg('No pude acceder al micrófono. Revisa los permisos del navegador.');return false}
+const micErr=e=>({NotAllowedError:'El permiso del micrófono está bloqueado. Toca el candado junto a la dirección, permite el micrófono y recarga la página.',NotFoundError:'No encuentro ningún micrófono conectado.',NotReadableError:'Otra aplicación está usando el micrófono. Ciérrala e inténtalo de nuevo.',SecurityError:'El navegador bloqueó el micrófono. Abre la página directamente con su dirección https://, sin vistas previas ni marcos.'}[e&&e.name]||'No pude acceder al micrófono ('+((e&&e.name)||'error')+').');
+async function openMic(){stop(1);const id=$('#dev').value,au={echoCancellation:false,noiseSuppression:$('#ns2').checked,autoGainControl:false};
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg('Este navegador no permite usar el micrófono aquí. Abre la página con https:// en Chrome, Edge, Firefox o Safari.');return false}
+ const get=a=>navigator.mediaDevices.getUserMedia({audio:a});
+ try{try{stream=await get(id&&id!='def'?{...au,deviceId:{exact:id}}:au)}catch(e){if(e.name=='OverconstrainedError'||e.name=='NotFoundError')stream=await get(au);else throw e}}catch(e){console.warn(e);msg(micErr(e));return false}
  AC();const src=ctx.createMediaStreamSource(stream);gN=ctx.createGain();gN.gain.value=+$('#gain').value;an=ctx.createAnalyser();an.fftSize=2048;src.connect(gN);gN.connect(an);buf=new Float32Array(2048);cancelAnimationFrame(raf);loop();await devs();return true}
-async function devs(){const cur=$('#dev').value,l=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind=='audioinput'),s=$('#dev');s.innerHTML='';l.forEach((d,i)=>{const o=el('option','',d.label||'Micrófono '+(i+1));o.value=d.deviceId;s.append(o)});if(cur&&l.some(d=>d.deviceId==cur))s.value=cur}
+async function devs(){const cur=$('#dev').value,l=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind=='audioinput'),s=$('#dev');s.innerHTML='';{const o0=el('option','','Predeterminado');o0.value='';s.append(o0)}l.forEach((d,i)=>{const o=el('option','',d.label||'Micrófono '+(i+1));o.value=d.deviceId;s.append(o)});if(cur&&l.some(d=>d.deviceId==cur))s.value=cur}
 function detect(b,sr){const n=b.length,mx=Math.min(Math.floor(sr/75),n>>1),mn=Math.floor(sr/450),d=new Float32Array(mx+2);
  for(let t=1;t<=mx;t++){let s=0;for(let i=0;i<n-mx;i++){const x=b[i]-b[i+t];s+=x*x}d[t]=s}
  let run=0;for(let t=1;t<=mx;t++){run+=d[t];d[t]=d[t]*t/(run||1)}

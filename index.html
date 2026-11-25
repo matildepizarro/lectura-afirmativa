@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#6d5efc">
+<meta name="theme-color" content="#f3eff8">
 <title>Voz Afirmativa · Acompañamiento vocal</title>
 <link rel="icon" href="icon.svg"><link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css"></head>
 <body><div class="wrap">
-<header><div class="logo">🎙</div><div><h1>Voz Afirmativa</h1><p>Práctica guiada de voz y lectura · acompañamiento vocal afirmativo para personas trans y de género diverso</p></div></header>
+<header><div class="logo" aria-hidden="true"></div><div><h1>Voz Afirmativa</h1><p>Práctica guiada de voz y lectura · acompañamiento vocal afirmativo para personas trans y de género diverso</p></div></header>
 <div class="grid">
 <div class="col">
  <div><div class="tabs" id="tabs"></div><p class="desc" id="desc"></p></div>
- <div class="card">
+ <div class="card stage">
   <span class="tag hid" id="tag"></span>
   <div id="reader"></div>
   <div class="legend"><span><b class="ok">Subrayado liso</b> dentro de tu rango</span><span><b class="lo">Punteado</b> más grave</span><span><b class="hi">Rayado</b> más agudo</span></div>
@@ -37,7 +37,7 @@
  </div>
  <div class="card"><h2>Micrófono</h2>
   <button class="btn" id="perm" style="width:100%">Permitir micrófono</button>
-  <label for="dev">Dispositivo</label><select id="dev"><option>Predeterminado</option></select>
+  <label for="dev">Dispositivo</label><select id="dev"><option value="">Predeterminado</option></select>
   <label>Sensibilidad <span class="val" id="sv"></span></label><input type="range" id="sens" min="1" max="10" value="6">
   <button class="btn" id="cal" style="width:100%;margin-top:12px">🎚 Calibrar (silencio + vocal “aaa”)</button>
   <div class="msg" id="calm">La calibración mide el ruido de tu ambiente y tu tono cómodo.</div>
