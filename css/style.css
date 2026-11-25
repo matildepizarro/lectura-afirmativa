@@ -58,3 +58,6 @@ input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
 .hid{display:none}.chk{display:flex;gap:9px;align-items:center;font-weight:500;font-size:.84rem;margin:12px 0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media(min-width:901px){.grid>.col:first-child{position:sticky;top:20px;align-self:start}}
+.band{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.band>div:first-child{grid-column:1/-1}
+input[type=number],textarea{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--solid) 60%,transparent);color:var(--ink);font:500 .9rem var(--sans)}
+textarea{margin-top:12px;resize:vertical;line-height:1.5}
