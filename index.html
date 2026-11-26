@@ -5,9 +5,9 @@
 <title>Voz Afirmativa · Acompañamiento vocal</title>
 <link rel="icon" href="icon.svg"><link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css"></head>
+<link rel="stylesheet" href="css/style.css"><script>try{var t=localStorage.getItem("vat");if(t)document.documentElement.dataset.theme=t}catch(e){}</script></head>
 <body><div class="wrap">
-<header><div class="logo" aria-hidden="true"></div><div><h1>Voz Afirmativa</h1><p>Práctica guiada de voz y lectura · acompañamiento vocal afirmativo para personas trans y de género diverso</p></div></header>
+<header><div class="logo" aria-hidden="true"></div><div><h1>Voz Afirmativa</h1><p>Práctica guiada de voz y lectura · acompañamiento vocal afirmativo para personas trans y de género diverso</p></div><button class="btn" id="theme" aria-label="Cambiar entre tema claro y oscuro" title="Tema claro / oscuro">◐</button></header>
 <div class="grid">
 <div class="col">
  <div><div class="tabs" id="tabs"></div><p class="desc" id="desc"></p></div>
@@ -16,7 +16,7 @@
   <div id="reader"></div>
   <div class="legend"><span><b class="ok">Subrayado liso</b> dentro de tu rango</span><span><b class="lo">Punteado</b> más grave</span><span><b class="hi">Rayado</b> más agudo</span></div>
   <div class="chips" id="chips"></div>
-  <div class="row"><button class="btn pri" id="go">▶ Comenzar a leer</button><button class="btn" id="prev">◀</button><button class="btn" id="next" title="Avanzar palabra manualmente">▶ Palabra</button><button class="btn" id="reset">↺ Reiniciar</button><label class="chk" style="margin:0 0 0 6px"><input type="checkbox" id="auto"> Pasar al siguiente automáticamente</label><label class="chk" style="margin:0 0 0 6px"><input type="checkbox" id="strict"> Modo estricto: solo avanza si reconoce la palabra</label></div>
+  <div class="row"><button class="btn pri" id="go">▶ Comenzar a leer</button><button class="btn" id="prev">◀</button><button class="btn" id="next" title="Avanzar palabra manualmente">▶ Palabra</button><button class="btn" id="reset">↺ Reiniciar</button><button class="btn" id="say" title="Escuchar cómo suena">🔊 Escuchar</button><label class="chk" style="margin:0 0 0 6px"><input type="checkbox" id="auto"> Pasar al siguiente automáticamente</label><label class="chk" style="margin:0 0 0 6px"><input type="checkbox" id="strict"> Modo estricto: solo avanza si reconoce la palabra</label></div>
   <div class="sub" id="hd" style="text-align:center;margin-top:8px"></div><div class="msg" id="msg">Elige tu nota en el piano, permite el micrófono y comienza. Lee a tu ritmo, con pausas.</div>
  </div>
  <div class="card hid" id="sum"><h2>Resumen de tu práctica</h2><div id="sumb"></div><button class="btn" id="exp" style="margin-top:8px">⬇ Exportar sesión (CSV)</button><div class="sub" style="margin-top:10px">Contorno de tu tono (zona verde = tu rango, líneas = inicio de cada palabra)</div><canvas id="cv" width="640" height="150" style="width:100%;margin-top:6px"></canvas></div>
@@ -46,9 +46,9 @@
   <div class="msg" id="calm">La calibración mide el ruido de tu ambiente y tu tono cómodo.</div>
   <button class="btn hid" id="useC" style="width:100%"></button>
   <label>Ganancia de entrada <span class="val" id="gv">1×</span></label><input type="range" id="gain" min=".5" max="4" step=".1" value="1">
-  <label class="chk"><input type="checkbox" id="ns2"> Reducción de ruido del navegador</label>
+  <label class="chk"><input type="checkbox" id="ns2"> Reducción de ruido del navegador</label><label class="chk"><input type="checkbox" id="adv"> Motor avanzado de voz: SwiftF0 + Silero VAD (~2,4 MB, queda guardado en el navegador)</label>
   <label for="lang">Idioma de reconocimiento</label><select id="lang"><option value="es-CL">Español (Chile)</option><option value="es-AR">Español (Argentina)</option><option value="es-MX">Español (México)</option><option value="es-ES">Español (España)</option></select>
-  <label for="eng">Motor de reconocimiento</label><select id="eng"><option value="web">Navegador (rápido, requiere internet)</option><option value="whisper">Whisper local (preciso; el audio no sale de tu equipo)</option></select><select id="wm" style="margin-top:6px"><option value="onnx-community/whisper-small">Whisper Small (~250 MB, el más preciso, más lento)</option><option value="onnx-community/whisper-base">Whisper Base (~75 MB, más preciso)</option><option value="onnx-community/whisper-tiny">Whisper Tiny (~40 MB, más rápido)</option></select>
+  <label for="eng">Motor de reconocimiento</label><select id="eng"><option value="web">Navegador (rápido, requiere internet)</option><option value="whisper">Whisper local (preciso; el audio no sale de tu equipo)</option></select><select id="wm" style="margin-top:6px"><option value="onnx-community/whisper-base_timestamped">Whisper Base con tiempos por palabra (~75 MB, alinea frases)</option><option value="onnx-community/whisper-small">Whisper Small (~250 MB, el más preciso, más lento)</option><option value="onnx-community/whisper-base">Whisper Base (~75 MB, más preciso)</option><option value="onnx-community/whisper-tiny">Whisper Tiny (~40 MB, más rápido)</option></select>
   <label class="chk"><input type="checkbox" id="loc"> Reconocer en el dispositivo (más rápido y privado)</label>
   <div class="sub" id="mnote">Chrome y Edge recientes usan el micrófono elegido también para reconocer palabras; si tu navegador no lo permite, usa el predeterminado.</div>
  </div>
@@ -60,6 +60,6 @@
  </div>
 </div></div></div>
 <script src="js/app.js"></script>
-<script type="module" src="js/whisper.js"></script>
+<script type="module" src="js/whisper.js"></script><script type="module" src="js/engine.js"></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
 </body></html>

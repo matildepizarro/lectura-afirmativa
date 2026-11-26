@@ -33,3 +33,17 @@ Para probar en local: `python3 -m http.server 8000` y abre `http://localhost:800
 Herramienta de apoyo; no reemplaza la evaluación ni el acompañamiento de un/a fonoaudiólogo/a. La nota guía es una referencia que cada persona elige, no una meta “correcta”. El audio no se guarda.
 
 Licencia MIT.
+
+
+## Referencias técnicas
+- Sílabas: de Jong & Wempe (2009), *Praat script to detect syllable nuclei*, Behavior Research Methods 41(2):385–390, https://doi.org/10.3758/BRM.41.2.385 — picos de intensidad (dB) con caídas de 2–4 dB, solo si tienen voz.
+- Tono: YIN (de Cheveigné & Kawahara, 2002) con interpolación parabólica.
+- Reconocimiento del navegador: Web Speech API, https://webaudio.github.io/web-speech-api (`processLocally`, `start(MediaStreamTrack)`, `phrases`: solo funciona en modo en el dispositivo; en modo servidor da `phrases-not-supported`).
+- Whisper local con tiempos por palabra: Transformers.js, modelo `onnx-community/whisper-base_timestamped` (`return_timestamps: 'word'`, sin `chunk_length_s`): https://github.com/huggingface/transformers.js/issues/1358
+
+## Motor avanzado (opcional)
+Casilla en «Micrófono». Usa dos modelos ONNX que corren en tu navegador (WASM, el audio no sale del equipo):
+- **SwiftF0** (tono y voz con tono; Nieradzik, 2025, MIT) — https://github.com/lars76/swift-f0 · https://arxiv.org/abs/2508.18440
+- **Silero VAD** (hay voz / no hay voz; Silero Team, MIT) — https://github.com/snakers4/silero-vad
+- Runtime: ONNX Runtime Web 1.22.0 desde jsDelivr. Modelos en `models/` (ver `models/LICENCIAS.txt`).
+Si algo falla al cargar, la app vuelve sola al motor básico (YIN + volumen). El tono llega con ~64 ms de retraso (4 cuadros de anticipación).

@@ -61,3 +61,5 @@ input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
 .band{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.band>div:first-child{grid-column:1/-1}
 input[type=number],textarea{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--solid) 60%,transparent);color:var(--ink);font:500 .9rem var(--sans)}
 textarea{margin-top:12px;resize:vertical;line-height:1.5}
+:root[data-theme="dark"]{--bg:#15111d;--card:rgba(48,38,70,.46);--solid:#2a2140;--ink:#f3eefa;--mut:#a99fbb;--line:rgba(255,255,255,.09);--acc:#cdbcff;--sky:#7fb6dd;--rose:#e79bbb;--lav:#a995e8;--ok:#6fe3bf;--lo:#8fbcff;--hi:#ffa183;--key:#ece6f6;--keyb:#0c0912;--sh:0 18px 50px -20px rgba(0,0,0,.6);color-scheme:dark}
+#theme{margin-left:auto;width:44px;height:44px;padding:0;border-radius:50%;font-size:1.1rem;flex:none}

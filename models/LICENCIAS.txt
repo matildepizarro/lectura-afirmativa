@@ -1,0 +1,3 @@
+swiftf0.onnx  - SwiftF0, (c) 2025-2026 Lars Nieradzik, licencia MIT. https://github.com/lars76/swift-f0
+silero_vad.onnx - Silero VAD, (c) 2020-present Silero Team, licencia MIT. https://github.com/snakers4/silero-vad
+ONNX Runtime Web 1.22.0 (Microsoft, MIT) se carga desde jsDelivr.
